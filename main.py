@@ -130,9 +130,6 @@ class Node:
         self.g = g  # O custo será a profundidade da árvore
         self.f = 0
 
-    def __eq__(self, point) -> bool:
-        return self.point == point
-
     def __str__(self) -> str:
         return f"Point: {self.point}\nParent: {self.parent}\nH: {self.h}\nG: {self.g}"
 
@@ -164,11 +161,11 @@ class EstrelaA:
     def startSolution(self, startNode: Node):
         currentNode: Node = startNode
         currentTable: Tabuleiro = self.node.point
-        nextTable: Tabuleiro = None
+        nextTable: Tabuleiro = startNode.point.getResolved()
         lstOptions = []
 
         # Verifica se o currentNode é igual a solução
-        while not (currentTable == nextTable):
+        while not (currentTable.table == nextTable):
             # print(currentNode.moveUp())
 
             # Testar as 4 direções
@@ -197,8 +194,6 @@ class EstrelaA:
                 if self.verifyNodeExists(lstOptions, ml):
                     lstOptions.append(ml)
 
-            lstOptions = list(filter(bool, lstOptions))
-
             # Calculo o valor de F para cada Nó
             for node in lstOptions:
                 node: Node
@@ -207,11 +202,11 @@ class EstrelaA:
 
             # Pego o menor valor de F dentre os nós espandidos
             min_table = min(lstOptions, key=lambda x: x.f)
-            currentNode = min_table
+            currentNode = copy.copy(min_table)
             currentTable = currentNode.getPoint()
 
             print(currentTable)
-
+            
             lstOptions.remove(min_table)
 
     def calc_g_amount(self, node: Node):
