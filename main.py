@@ -11,7 +11,7 @@ class Tabuleiro:
 
     def __str__(self) -> str:
         # textoTabuleiro = f"{self.table[0]}\n{self.table[1]}\n{self.table[2]}\n\nGoal\n{self.resolved[0]}\n{self.resolved[1]}\n{self.resolved[2]}\n"
-        textoTabuleiro = f"{self.table[0]}\n{self.table[1]}\n{self.table[2]}\n"
+        textoTabuleiro = f"\n{self.table[0]}\n{self.table[1]}\n{self.table[2]}\n"
         return textoTabuleiro
 
     # busco pela posicao atual do branco (mas, consigo pesquisar por algum outro tambem, caso nescessario)
@@ -22,14 +22,13 @@ class Tabuleiro:
                 if point[i][j] == element:
                     return i, j  # linha, coluna
 
-    def mahatanDistance(
-        self, element1, currentPoint
-    ):  # CurrentPoint é o tabuleiro atual
+    # CurrentPoint é o tabuleiro atual
+    def mahatanDistance(self, element1, currentPoint):
         md = 0
         linhaGoal, colunaGoal = self.searchPoint(self.resolved, element1)
         linha, coluna = self.searchPoint(currentPoint, element1)
         md = abs(linhaGoal - linha) + abs(colunaGoal - coluna)
-        print(f"Distance of {element1}: {md}")
+        # print(f"Distance of {element1}: {md}")
         return md
 
     def getTable(self):
@@ -51,11 +50,15 @@ class Tabuleiro:
                     if i - 1 < 0:
                         return False
                     else:
-                        h = self.mahatanDistance(self.table[i - 1][j], newTable)
                         newTable[i - 1][j] = 0
                         newTable[i][j] = self.table[i - 1][j]
-                        if newTable == tableParent:
-                            return False
+                        # if newTable == tableParent:
+                        #     return False
+
+                        h = 0
+                        for k in range(1, 9):
+                            h += self.mahatanDistance(k, newTable)
+
                         return Node(Tabuleiro(newTable), currentNode, h, height + 1)
         return newTable
 
@@ -74,8 +77,13 @@ class Tabuleiro:
                         h = self.mahatanDistance(self.table[i][j + 1], newTable)
                         newTable[i][j + 1] = 0
                         newTable[i][j] = self.table[i][j + 1]
-                        if newTable == tableParent:
-                            return False
+                        # if newTable == tableParent:
+                        #     return False
+
+                        h = 0
+                        for k in range(1, 9):
+                            h += self.mahatanDistance(k, newTable)
+
                         return Node(Tabuleiro(newTable), currentNode, h, height + 1)
         return newTable
 
@@ -95,9 +103,11 @@ class Tabuleiro:
                         newTable[i + 1][j] = 0
                         newTable[i][j] = self.table[i + 1][j]
 
-                        if newTable == tableParent:
-                            return False
-
+                        # if newTable == tableParent:
+                        #     return False
+                        h = 0
+                        for k in range(1, 9):
+                            h += self.mahatanDistance(k, newTable)
                         return Node(Tabuleiro(newTable), currentNode, h, height + 1)
         return newTable
 
@@ -116,8 +126,12 @@ class Tabuleiro:
                         h = self.mahatanDistance(self.table[i][j - 1], newTable)
                         newTable[i][j - 1] = 0
                         newTable[i][j] = self.table[i][j - 1]
-                        if newTable == tableParent:
-                            return False
+                        # if newTable == tableParent:
+                        #     return False
+                        h = 0
+                        # print(newTable)
+                        for k in range(1, 9):
+                            h += self.mahatanDistance(k, newTable)
                         return Node(Tabuleiro(newTable), currentNode, h, height + 1)
         return newTable
 
@@ -138,6 +152,12 @@ class Node:
 
     def getPoint(self):
         return self.point
+
+    def showPath(self):
+        currentNode = self
+        while currentNode.parent is not None:
+            print(f"{currentNode}")
+            currentNode = self.parent
 
 
 class EstrelaA:
@@ -171,7 +191,7 @@ class EstrelaA:
             print(f"\n{currentTable}")
 
             # Testar as 4 direções
-            g_depth = currentNode.parent.g if currentNode.parent is not None else 0
+            g_depth = currentNode.g
 
             mup = currentTable.moveUp(g_depth, currentNode)
             mr = currentTable.moveRight(g_depth, currentNode)
@@ -196,22 +216,29 @@ class EstrelaA:
                 if self.verifyNodeExists(lstOptions, ml):
                     lstOptions.append(ml)
 
+
+            lstOptions = list(filter(bool, lstOptions))
+            
             # Calculo o valor de F para cada Nó
             for node in lstOptions:
                 node: Node
                 if node.f == 0:
-                    node.f = self.calc_g_amount(node) + node.h
+                    node.f = node.g + node.h
 
             # Pego o menor valor de F dentre os nós espandidos
             min_table = min(lstOptions, key=lambda x: x.f)
             currentNode = copy.copy(min_table)
             currentTable = copy.copy(currentNode.getPoint())
 
+            print(f"H: {currentNode.h}")
+            print(f"F: {currentNode.f}")
+
             lstOptions.remove(min_table)
             # currentTable.table = currentNode.point.getResolved() Para testar
 
-        print('Busca finalizada')
-        
+        print("Busca finalizada")
+        print(currentNode.showPath())
+
     def calc_g_amount(self, node: Node):
         g_amount = 0
         current_edge = node
@@ -222,9 +249,15 @@ class EstrelaA:
 
         return g_amount
 
-table = Tabuleiro()
+
+table = Tabuleiro([[3, 1, 2], [0, 4, 5], [6, 7, 8]])
+
+h = 0
+for k in range(1, 9):
+    h += table.mahatanDistance(k, table.getTable())
+
 parentNode = Node(
-    table, None, 0, 0
+    table, None, h, 0
 )  # h == 0 aqui porque o branco, na realidade não tem um lugar em si para ele, o lugar dele vai depender de como é a matriz objetivo
 
 busca = EstrelaA(parentNode)
