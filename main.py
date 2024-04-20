@@ -161,12 +161,14 @@ class EstrelaA:
     def startSolution(self, startNode: Node):
         currentNode: Node = startNode
         currentTable: Tabuleiro = self.node.point
-        nextTable: Tabuleiro = startNode.point.getResolved()
+        soluctionTable: Tabuleiro = startNode.point.getResolved()
         lstOptions = []
 
         # Verifica se o currentNode é igual a solução
-        while not (currentTable.table == nextTable):
+        while not (currentTable.table == soluctionTable):
             # print(currentNode.moveUp())
+
+            print(f"\n{currentTable}")
 
             # Testar as 4 direções
             g_depth = currentNode.parent.g if currentNode.parent is not None else 0
@@ -203,12 +205,13 @@ class EstrelaA:
             # Pego o menor valor de F dentre os nós espandidos
             min_table = min(lstOptions, key=lambda x: x.f)
             currentNode = copy.copy(min_table)
-            currentTable = currentNode.getPoint()
+            currentTable = copy.copy(currentNode.getPoint())
 
-            print(currentTable)
-            
             lstOptions.remove(min_table)
+            # currentTable.table = currentNode.point.getResolved() Para testar
 
+        print('Busca finalizada')
+        
     def calc_g_amount(self, node: Node):
         g_amount = 0
         current_edge = node
@@ -218,79 +221,6 @@ class EstrelaA:
             current_edge = current_edge.parent
 
         return g_amount
-
-    def showOptions(self, g_options_all):
-        for o in g_options_all:
-            print(f"{o[0].origem} --{o[1]}--> {o[0].destino}")
-
-    def startSearch(self, source, destiny):
-        n = 0
-        current_table = source
-        # current_edge = Edge()
-        lastCity = ""
-        g_options_all = []  # nome f g_accumulate
-        path = []
-
-        while True:
-            print(
-                "\n---------------------------------------------------------------------------\n"
-                f"PASSO: {n}"
-                "\n---------------------------------------------------------------------------\n"
-            )
-            n += 1
-
-            if current_table == destiny:
-                path = current_edge
-                break
-
-            # nextCity[3]: g_accumulate, nextCity[2]: valor de h, nextCity[1]:  custo g, nextCity[0]: nome destino
-            for nextCity in self.grafo[current_table]:
-                nextCity: Edge
-
-                if nextCity.destino in nextCity.path:
-                    continue
-
-                g_accumulate = self.calc_g_amount(nextCity)
-
-                custoTotal = nextCity.g_distancia + g_accumulate
-                f = custoTotal + nextCity.h_destino
-
-                nextCity.path.append(nextCity.origem)
-
-                # Verifico se já não tem uma opção ou se uma opção já foi visitada
-                g_options_all.append([nextCity, f])
-
-            # min_result = min(g_options_all, key=lambda x: x[1])
-            self.showOptions(g_options_all)
-
-            lastCity = current_table
-            print(f"Origem: {lastCity}")
-
-            cityBestCost = min(g_options_all, key=lambda x: x[1])
-            current_table = cityBestCost[0].destino
-            current_edge = cityBestCost[0]
-
-            if len(g_options_all) > 0:
-                indexCityChoice = [
-                    indice
-                    for indice, city in enumerate(g_options_all)
-                    if city[0] == current_edge
-                ]
-                g_options_all.pop(indexCityChoice[0])
-
-            print(f"city escolhida: {current_table}")
-            for c in self.grafo[current_table]:
-                c.path = (
-                    current_edge.path.copy()
-                )  # Ele tava compartilhando o mesmo local de memoria
-
-        print(
-            "\n---------------------------------------------------------------------------\n"
-            f"Melhor Caminho: {path.path} -> {path.destino}\n"
-            f"Custo Total: {self.calc_g_amount(nextCity) + path.g_distancia}"
-            "\n---------------------------------------------------------------------------\n"
-        )
-
 
 table = Tabuleiro()
 parentNode = Node(
