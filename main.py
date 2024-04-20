@@ -153,17 +153,20 @@ class Node:
     def getPoint(self):
         return self.point
 
-    def showPath(self):
-        currentNode = self
-        while currentNode.parent is not None:
-            print(f"{currentNode}")
-            currentNode = self.parent
-
 
 class EstrelaA:
     def __init__(self, node: Node) -> None:
         self.node = node
         self.startSolution(self.node)  # , self.node.point.getResolved()
+
+    def showPath(self, currentNode, k=0):
+        if currentNode.g == k:
+            return currentNode.point
+
+        print(self.showPath(currentNode.parent, k))
+        
+        print(' | \n | \n | \n\\ /\n v ')
+        return currentNode.point
 
     def verifyNodeExists(self, lstNodes, currentNode):
         if not currentNode:
@@ -216,9 +219,8 @@ class EstrelaA:
                 if self.verifyNodeExists(lstOptions, ml):
                     lstOptions.append(ml)
 
-
             lstOptions = list(filter(bool, lstOptions))
-            
+
             # Calculo o valor de F para cada Nó
             for node in lstOptions:
                 node: Node
@@ -237,7 +239,8 @@ class EstrelaA:
             # currentTable.table = currentNode.point.getResolved() Para testar
 
         print("Busca finalizada")
-        print(currentNode.showPath())
+        print(self.showPath(currentNode))
+        print(f'Custo Total: {currentNode.f}')
 
     def calc_g_amount(self, node: Node):
         g_amount = 0
@@ -250,7 +253,8 @@ class EstrelaA:
         return g_amount
 
 
-table = Tabuleiro([[3, 1, 2], [0, 4, 5], [6, 7, 8]])
+#[[3, 1, 2], [0, 4, 5], [6, 7, 8]]
+table = Tabuleiro() 
 
 h = 0
 for k in range(1, 9):
