@@ -4,6 +4,7 @@ import copy
 class Tabuleiro:
     def __init__(self, table=[[7, 2, 4], [5, 0, 6], [8, 3, 1]]) -> None:
         self.table = table
+        # self.resolved = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
         self.resolved = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
 
     def __eq__(self, table) -> bool:  # Verifico se o tabuleiro é igual a solucao
@@ -164,8 +165,8 @@ class EstrelaA:
             return currentNode.point
 
         print(self.showPath(currentNode.parent, k))
-        
-        print(' | \n | \n | \n\\ /\n v ')
+
+        print(" | \n | \n | \n\\ /\n v ")
         return currentNode.point
 
     def verifyNodeExists(self, lstNodes, currentNode):
@@ -240,7 +241,7 @@ class EstrelaA:
 
         print("Busca finalizada")
         print(self.showPath(currentNode))
-        print(f'Custo Total: {currentNode.f}')
+        print(f"Custo Total: {currentNode.f}")
 
     def calc_g_amount(self, node: Node):
         g_amount = 0
@@ -253,8 +254,10 @@ class EstrelaA:
         return g_amount
 
 
-#[[3, 1, 2], [0, 4, 5], [6, 7, 8]]
-table = Tabuleiro() 
+# [[3, 1, 2], [0, 4, 5], [6, 7, 8]]
+# [[8,7,5],[2,6,4],[3,1,0]]
+# [[6, 4, 5], [7, 3, 2], [8, 1, 0]]
+table = Tabuleiro()
 
 h = 0
 for k in range(1, 9):
